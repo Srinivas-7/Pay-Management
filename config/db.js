@@ -1,15 +1,53 @@
 require('dotenv').config();
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'payroll.db');
-const dbConnection = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Could not connect to SQLite database:', err.message);
-  } else {
-    console.log(`Connected to SQLite database at: ${dbPath}`);
+let dbPath = process.env.DATABASE_PATH || path.join(__dirname, '..', 'payroll.db');
+let dbConnection;
+
+function connectDatabase(targetPath) {
+  try {
+    const dir = path.dirname(targetPath);
+    // Attempt to create directories if they don't exist
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    const conn = new sqlite3.Database(targetPath, (err) => {
+      if (err) {
+        console.error(`SQLite database connection error at ${targetPath}:`, err.message);
+        triggerFallback(targetPath);
+      } else {
+        console.log(`Connected to SQLite database at: ${targetPath}`);
+      }
+    });
+    return conn;
+  } catch (err) {
+    console.error(`Failed to initialize database path at ${targetPath}:`, err.message);
+    return triggerFallback(targetPath);
   }
-});
+}
+
+function triggerFallback(failedPath) {
+  const fallbackPath = path.join(__dirname, '..', 'payroll.db');
+  if (failedPath !== fallbackPath) {
+    console.log(`Falling back to project-root database file at: ${fallbackPath}`);
+    dbPath = fallbackPath;
+    return new sqlite3.Database(fallbackPath, (err) => {
+      if (err) {
+        console.error('Failed to open fallback database:', err.message);
+      } else {
+        console.log(`Connected to fallback SQLite database at: ${fallbackPath}`);
+      }
+    });
+  } else {
+    console.error('Critical Error: Fallback database also failed to load.');
+    return null;
+  }
+}
+
+dbConnection = connectDatabase(dbPath);
 
 // Initialize database tables synchronously on boot
 dbConnection.serialize(() => {
