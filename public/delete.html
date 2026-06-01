@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Employee | Payroll</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="card" style="max-width: 540px; margin: 0 auto;">
+      <h2>Delete Employee Record</h2>
+      <p>Enter the Employee ID to look up their details and delete them from the database.</p>
+
+      <div id="alert-container"></div>
+
+      <form id="delete-lookup-form">
+        <div class="form-group">
+          <label for="employee-id">Employee ID</label>
+          <input type="text" id="employee-id" class="form-control" placeholder="Enter Employee ID" required>
+        </div>
+        
+        <div class="mt-4" style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn btn-danger">Lookup Employee</button>
+          <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Handle URL parameters for success/error alerts
+    window.addEventListener('DOMContentLoaded', () => {
+      const successMsg = getQueryParam('success');
+      const errorMsg = getQueryParam('error');
+      
+      if (successMsg) {
+        showAlert('alert-container', decodeURIComponent(successMsg), 'success');
+      }
+      if (errorMsg) {
+        showAlert('alert-container', decodeURIComponent(errorMsg), 'danger');
+      }
+    });
+
+    document.getElementById('delete-lookup-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const empId = document.getElementById('employee-id').value.trim();
+      if (empId) {
+        window.location.href = `details.html?id=${empId}&delete=true`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Details | Payroll</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .details-table td:first-child {
+      font-weight: 600;
+      color: var(--text-secondary);
+      width: 30%;
+    }
+  </style>
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="card" style="max-width: 720px; margin: 0 auto;">
+      <div id="details-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+        <h2>Employee Profile Details</h2>
+        <h3 id="employee-id-title">Employee ID : --</h3>
+      </div>
+
+      <div id="alert-container"></div>
+
+      <div class="table-responsive mb-4">
+        <table class="details-table">
+          <tbody id="details-tbody">
+            <tr><td colspan="2" class="text-center">Loading employee details...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;" id="details-actions">
+        <button class="btn btn-secondary" onclick="goBack()">Go Back</button>
+        <!-- Delete button will be appended here dynamically if requested -->
+      </div>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    const employeeId = getQueryParam('id');
+    const showDeleteAction = getQueryParam('delete') === 'true';
+
+    window.addEventListener('DOMContentLoaded', fetchEmployeeDetails);
+
+    function goBack() {
+      if (document.referrer && document.referrer.includes('view.html')) {
+        window.location.href = 'view.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    async function fetchEmployeeDetails() {
+      if (!employeeId) {
+        showAlert('alert-container', 'Invalid Employee ID.');
+        document.getElementById('details-tbody').innerHTML = `<tr><td colspan="2" class="text-center text-danger">No Employee Selected</td></tr>`;
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/employees/${employeeId}`);
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          const emp = result.data;
+          
+          document.getElementById('employee-id-title').textContent = `Employee ID : ${emp.id}`;
+          
+          // Format Join Date
+          const joinDate = new Date(emp.startdate).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'long', day: 'numeric'
+          });
+
+          // Format DOB
+          const dobDate = new Date(emp.dob).toLocaleDateString(undefined, {
+            year: 'numeric', month: 'long', day: 'numeric'
+          });
+
+          document.getElementById('details-tbody').innerHTML = `
+            <tr><td>Name</td><td>${emp.name}</td></tr>
+            <tr><td>DOB</td><td>${dobDate}</td></tr>
+            <tr><td>Gender</td><td>${emp.gender.toUpperCase()}</td></tr>
+            <tr><td>Address</td><td>${emp.address}</td></tr>
+            <tr><td>Phone</td><td>${emp.phone}</td></tr>
+            <tr><td>Email</td><td>${emp.email}</td></tr>
+            <tr><td>Branch</td><td>${emp.branch}</td></tr>
+            <tr><td>Designation</td><td>${emp.department}</td></tr>
+            <tr><td>Joining Date</td><td>${joinDate}</td></tr>
+            <tr><td>Shift</td><td>${emp.shift.toUpperCase()}</td></tr>
+            <tr><td>Basic Pay</td><td>${emp.basic}</td></tr>
+          `;
+
+          if (showDeleteAction) {
+            const actionsDiv = document.getElementById('details-actions');
+            
+            const deleteForm = document.createElement('form');
+            deleteForm.style.display = 'inline';
+            deleteForm.innerHTML = `
+              <button type="submit" class="btn btn-danger">Confirm Delete</button>
+            `;
+            
+            deleteForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              if (confirm('Are you sure you want to delete this employee permanently? This cannot be undone.')) {
+                await deleteEmployee();
+              }
+            });
+
+            actionsDiv.appendChild(deleteForm);
+          }
+
+        } else {
+          showAlert('alert-container', result.error || 'Failed to load employee details.');
+          document.getElementById('details-tbody').innerHTML = `<tr><td colspan="2" class="text-center text-danger">Error loading data.</td></tr>`;
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('alert-container', 'Network error while loading details.');
+      }
+    }
+
+    async function deleteEmployee() {
+      try {
+        const response = await fetch(`/api/employees/${employeeId}`, {
+          method: 'DELETE'
+        });
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          window.location.href = 'delete.html?success=' + encodeURIComponent('Employee data deleted!');
+        } else {
+          showAlert('alert-container', result.error || 'Failed to delete employee.');
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('alert-container', 'Network error. Failed to delete employee.');
+      }
+    }
+  </script>
+</body>
+</html>

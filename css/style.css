@@ -1,0 +1,113 @@
+body,
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body{
+    padding-top:100px;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 700;
+}
+footer {
+    padding: 10px 0;
+    background-color: #101010;
+    color:#9d9d9d;
+    bottom: 0;
+    width: 100%;
+    margin-top:300px;
+}
+.navbar-brand{
+    font-size:20px;
+}
+/* modification*/
+/* style.css */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#login-panel {
+  height: 100vh;             /* full viewport height */
+  display: flex;
+  justify-content: center;   /* horizontal center */
+  align-items: center;       /* vertical center */
+}
+
+#login-panel .row {
+  width: 100%;
+  max-width: 400px;          /* optional: limit width */
+  margin-top: 30;                 /* remove default row margin */
+}
+
+.navbar-brand {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.navbar-brand:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.navbar-nav > li > a {
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.3s ease;
+}
+
+.navbar-nav > li > a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+
+
+.navbar-custom {
+    background-color: #007bff !important; /* Bootstrap blue */
+    border: none;
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .nav > li > a {
+    color: rgba(255, 255, 255, 0.8) !important; /* Translucent white */
+    font-weight: bold;
+}
+
+.navbar-custom .nav > li > a:hover,
+.navbar-custom .navbar-brand:hover {
+    color: #ffffff !important; /* Fully white on hover */
+    text-decoration: underline;
+}
+.custom-row-margin {
+  margin-top: 50px; /* adjust the value as needed */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;  /* darker blue on hover */
+    border-color: #004085;      /* darker border */
+    color: white;               /* text color stays white */
+    transition: background-color 0.3s ease; /* smooth transition */
+}
+
+/* modification*/
+
+
+@media(max-width:768px) {
+    #banner_content {
+        padding-bottom: 15%;
+    }
+    footer{
+        text-align:left;
+    }
+}

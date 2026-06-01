@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | Payroll</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .profile-container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 2rem;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .profile-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .avatar-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: 800;
+      color: white;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+      cursor: pointer;
+      overflow: hidden;
+    }
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: none;
+    }
+    .avatar-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(11, 15, 25, 0.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #ffffff;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      gap: 4px;
+    }
+    .avatar-wrapper:hover .avatar-overlay {
+      opacity: 1;
+    }
+    .avatar-overlay svg {
+      width: 20px;
+      height: 20px;
+    }
+    .profile-card {
+      text-align: center;
+    }
+    .stat-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+      margin-bottom: 0.25rem;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .details-list {
+      list-style: none;
+      width: 100%;
+    }
+    .details-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .details-list li:last-child {
+      border-bottom: none;
+    }
+    .details-label {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .details-value {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Modal Styling */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-container {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: var(--card-shadow);
+      transform: scale(0.9);
+      transition: transform 0.3s ease;
+      text-align: center;
+    }
+    .modal-backdrop.active .modal-container {
+      transform: scale(1);
+    }
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--text-primary);
+    }
+    .camera-stream-box {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .camera-stream-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* Mirror camera stream */
+    }
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="mb-4">
+      <h1>Account Profile</h1>
+      <p>Manage your account settings and view system-wide database overview statistics.</p>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <div class="profile-container">
+      <!-- Left Column: User Profile Card -->
+      <div class="card profile-card">
+        <!-- Profile Picture Wrapper -->
+        <div class="avatar-wrapper" id="profile-avatar-wrapper" onclick="openPhotoOptions()">
+          <span id="profile-avatar-initial">U</span>
+          <img src="" alt="Profile Image" id="profile-avatar-img" class="avatar-img">
+          <div class="avatar-overlay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+            <span>Change</span>
+          </div>
+        </div>
+        <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+
+        <h2 id="profile-username" style="margin-bottom: 0.25rem;">Loading...</h2>
+        <p id="profile-role" style="font-size: 0.95rem; font-weight: 600; color: var(--accent-primary); margin-bottom: 1.5rem;">User Account</p>
+        
+        <ul class="details-list">
+          <li>
+            <span class="details-label">User ID</span>
+            <span class="details-value" id="detail-id">--</span>
+          </li>
+          <li>
+            <span class="details-label">Security Role</span>
+            <span class="details-value" id="detail-role">--</span>
+          </li>
+          <li>
+            <span class="details-label">Account Status</span>
+            <span class="details-value text-success" id="detail-status">Active</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Right Column: System Stats & Quick Links -->
+      <div class="card">
+        <h3>System Statistics</h3>
+        <p>A quick summary of records managed under your session.</p>
+
+        <div class="dashboard-grid" style="margin-bottom: 2rem;">
+          <div class="stat-badge">
+            <span class="stat-number" id="stat-employees">--</span>
+            <span class="stat-label">Total Employees</span>
+          </div>
+          <div class="stat-badge">
+            <span class="stat-number" id="stat-records">--</span>
+            <span class="stat-label">Pay Slips Saved</span>
+          </div>
+        </div>
+
+        <h3>Quick Settings</h3>
+        <p>Need to update your system credentials?</p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="window.location.href='settings.html'">Change Password</button>
+          <button class="btn btn-secondary" onclick="window.location.href='index.html'">Back to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Photo Selection Dialog Modal -->
+  <div class="modal-backdrop" id="photo-options-modal" onclick="closeModal('photo-options-modal')">
+    <div class="modal-container" onclick="event.stopPropagation()">
+      <div class="modal-title">Edit Profile Picture</div>
+      <div class="option-list">
+        <button class="btn btn-secondary btn-block" onclick="triggerFileInput()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          Choose from Gallery
+        </button>
+        <button class="btn btn-secondary btn-block" onclick="openCameraModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          Capture from Camera
+        </button>
+        <button class="btn btn-danger btn-block" id="remove-photo-btn" onclick="removeProfilePic()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 6px;">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Remove Photo
+        </button>
+        <button class="btn btn-secondary btn-block mt-4" onclick="closeModal('photo-options-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Camera Stream Capture Modal -->
+  <div class="modal-backdrop" id="camera-capture-modal">
+    <div class="modal-container">
+      <div class="modal-title">Capture Profile Picture</div>
+      <div class="camera-stream-box">
+        <video id="webcam-video" autoplay playsinline></video>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="captureSnapshot()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Capture
+        </button>
+        <button class="btn btn-secondary" onclick="closeCameraModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <footer id="app-footer"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let localUsername = 'default';
+    let streamRef = null;
+
+    window.addEventListener('DOMContentLoaded', loadProfilePage);
+
+    async function loadProfilePage() {
+      try {
+        // 1. Fetch Session
+        const sessionRes = await fetch('/api/auth/session');
+        const session = await sessionRes.json();
+
+        if (sessionRes.ok && session.loggedIn) {
+          const user = session.user;
+          localUsername = user.username;
+          document.getElementById('profile-username').textContent = user.username;
+          document.getElementById('detail-id').textContent = user.id;
+          
+          // Determine Role Display
+          const isSystemAdmin = user.username.toLowerCase() === 'admin';
+          const roleName = isSystemAdmin ? 'System Administrator' : 'General User';
+          document.getElementById('profile-role').textContent = roleName;
+          document.getElementById('detail-role').textContent = roleName;
+
+          // Set Avatar Initial
+          document.getElementById('profile-avatar-initial').textContent = user.username.charAt(0).toUpperCase();
+
+          // Load profile picture from LocalStorage if it exists
+          displayProfilePicture();
+        }
+
+        // 2. Fetch Employee Count
+        const empRes = await fetch('/api/employees');
+        const empResult = await empRes.json();
+        if (empRes.ok && empResult.success) {
+          document.getElementById('stat-employees').textContent = empResult.data.length;
+        }
+
+        // 3. Fetch Records Count
+        const recRes = await fetch('/api/records');
+        const recResult = await recRes.json();
+        if (recRes.ok && recResult.success) {
+          document.getElementById('stat-records').textContent = recResult.data.length;
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('alert-container', 'Failed to retrieve profile or system metrics.');
+      }
+    }
+
+    // Modal Control Helper Functions
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Photo Dialog Options Menu
+    function openPhotoOptions() {
+      const hasPic = localStorage.getItem(`profile_pic_${localUsername}`) !== null;
+      document.getElementById('remove-photo-btn').style.display = hasPic ? 'block' : 'none';
+      openModal('photo-options-modal');
+    }
+
+    // Trigger Gallery File Input Select
+    function triggerFileInput() {
+      closeModal('photo-options-modal');
+      document.getElementById('avatar-file-input').click();
+    }
+
+    // Listen to Gallery File Select
+    document.getElementById('avatar-file-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64Img = event.target.result;
+        saveProfilePicture(base64Img);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Save profile picture to LocalStorage
+    function saveProfilePicture(base64Data) {
+      try {
+        localStorage.setItem(`profile_pic_${localUsername}`, base64Data);
+        displayProfilePicture();
+        showAlert('alert-container', 'Profile picture updated!', 'success');
+      } catch (err) {
+        console.error(err);
+        showAlert('alert-container', 'Image size is too large. Choose a smaller photo.');
+      }
+    }
+
+    // Display loaded picture
+    function displayProfilePicture() {
+      const pic = localStorage.getItem(`profile_pic_${localUsername}`);
+      const initialEl = document.getElementById('profile-avatar-initial');
+      const imgEl = document.getElementById('profile-avatar-img');
+
+      if (pic) {
+        imgEl.src = pic;
+        imgEl.style.display = 'block';
+        initialEl.style.display = 'none';
+      } else {
+        imgEl.src = '';
+        imgEl.style.display = 'none';
+        initialEl.style.display = 'block';
+      }
+    }
+
+    // Remove photo
+    function removeProfilePic() {
+      localStorage.removeItem(`profile_pic_${localUsername}`);
+      displayProfilePicture();
+      closeModal('photo-options-modal');
+      showAlert('alert-container', 'Profile picture removed.', 'success');
+    }
+
+    // Open Camera Modal & Start Media Stream
+    async function openCameraModal() {
+      closeModal('photo-options-modal');
+      openModal('camera-capture-modal');
+
+      const video = document.getElementById('webcam-video');
+      try {
+        streamRef = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480, facingMode: 'user' },
+          audio: false
+        });
+        video.srcObject = streamRef;
+      } catch (err) {
+        console.error('Camera stream access denied:', err);
+        closeCameraModal();
+        showAlert('alert-container', 'Failed to access camera stream. Ensure permissions are granted.');
+      }
+    }
+
+    // Close Camera Modal & Stop Media Tracks
+    function closeCameraModal() {
+      closeModal('camera-capture-modal');
+      if (streamRef) {
+        streamRef.getTracks().forEach(track => track.stop());
+        streamRef = null;
+      }
+    }
+
+    // Capture Canvas Frame Snapshot
+    function captureSnapshot() {
+      const video = document.getElementById('webcam-video');
+      
+      // Create a canvas on the fly
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 400; // Force exact 1:1 square aspect ratio
+
+      const ctx = canvas.getContext('2d');
+      
+      // Capture mirror/centered canvas
+      ctx.translate(canvas.width, 0);
+      ctx.scale(-1, 1);
+      
+      // Crop 4:3 video center region to 1:1 square
+      const sourceWidth = video.videoWidth;
+      const sourceHeight = video.videoHeight;
+      const size = Math.min(sourceWidth, sourceHeight);
+      const sourceX = (sourceWidth - size) / 2;
+      const sourceY = (sourceHeight - size) / 2;
+
+      ctx.drawImage(video, sourceX, sourceY, size, size, 0, 0, canvas.width, canvas.height);
+
+      // Convert canvas to Data URL
+      const base64Data = canvas.toDataURL('image/jpeg', 0.9);
+      saveProfilePicture(base64Data);
+      
+      closeCameraModal();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Data | Payroll</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="mb-4" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <div>
+        <h1>Employee Database Registers</h1>
+        <p>A list of all employees currently registered in the system.</p>
+      </div>
+      <button class="btn btn-primary" onclick="window.location.href='add_employee.html'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add Employee
+      </button>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <div class="table-responsive">
+      <table id="employees-table">
+        <thead>
+          <tr>
+            <th>Employee ID</th>
+            <th>Employee Name</th>
+            <th>Branch</th>
+            <th>Department</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Info</th>
+          </tr>
+        </thead>
+        <tbody id="employees-tbody">
+          <tr>
+            <td colspan="7" class="text-center" style="padding: 2rem; color: var(--text-secondary);">Loading employee data...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', fetchEmployees);
+
+    async function fetchEmployees() {
+      const tbody = document.getElementById('employees-tbody');
+      try {
+        const response = await fetch('/api/employees');
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          const employees = result.data;
+          
+          if (employees.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="7" class="text-center" style="padding: 3rem;">
+                  <p class="text-danger" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0;">No Employee Data Found!</p>
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          tbody.innerHTML = employees.map(emp => `
+            <tr>
+              <td><strong>${emp.id}</strong></td>
+              <td>${emp.name}</td>
+              <td>${emp.branch}</td>
+              <td>${emp.department}</td>
+              <td>${emp.phone}</td>
+              <td><a href="mailto:${emp.email}" style="color: var(--accent-primary); text-decoration: underline;">${emp.email}</a></td>
+              <td>
+                <a href="details.html?id=${emp.id}" class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.85rem;">
+                  View Details
+                </a>
+              </td>
+            </tr>
+          `).join('');
+
+        } else {
+          showAlert('alert-container', result.error || 'Failed to fetch employees list.');
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading data.</td></tr>`;
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('alert-container', 'Network error while retrieving employees.');
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">Error loading data.</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>

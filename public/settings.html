@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings | Payroll</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="app-header"></header>
+
+  <main>
+    <div class="card" style="max-width: 500px; margin: 0 auto;">
+      <h2>Change Password</h2>
+      <p>Configure a new administrator password for database access security.</p>
+
+      <div id="alert-container"></div>
+
+      <form id="settings-form">
+        <div class="form-group">
+          <label for="old-password">Old Password</label>
+          <input type="password" id="old-password" class="form-control" placeholder="Old Password" required>
+        </div>
+        <div class="form-group">
+          <label for="new-password">New Password</label>
+          <input type="password" id="new-password" class="form-control" placeholder="New Password" required minlength="5">
+        </div>
+        <div class="form-group">
+          <label for="re-password">Re-type New Password</label>
+          <input type="password" id="re-password" class="form-control" placeholder="Re-type New Password" required minlength="5">
+        </div>
+        
+        <div class="mt-4" style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn btn-primary">Change Password</button>
+          <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer id="app-footer"></footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById('settings-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const oldPass = document.getElementById('old-password').value;
+      const newPass = document.getElementById('new-password').value;
+      const rePass = document.getElementById('re-password').value;
+
+      if (newPass !== rePass) {
+        showAlert('alert-container', "The two passwords don't match.");
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            'old-password': oldPass,
+            password: newPass,
+            password1: rePass
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          showAlert('alert-container', result.message || 'Password Updated successfully', 'success');
+          document.getElementById('settings-form').reset();
+        } else {
+          showAlert('alert-container', result.error || 'Failed to update password.');
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert('alert-container', 'Network error. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

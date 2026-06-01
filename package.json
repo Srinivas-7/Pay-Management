@@ -1,0 +1,26 @@
+{
+  "name": "payroll-system",
+  "version": "1.0.0",
+  "description": "A modern Node.js payroll management system converted from PHP",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.9.7",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "private": true
+}
