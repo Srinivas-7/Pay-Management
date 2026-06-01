@@ -9,6 +9,8 @@ if (process.env.DB_HOST) {
   console.log('Database Mode: Using remote MySQL database');
   const mysql = require('mysql2/promise');
 
+  const sslConfig = process.env.DB_SSL === 'false' ? false : { rejectUnauthorized: false };
+
   // Create MySQL connection pool
   const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -18,7 +20,8 @@ if (process.env.DB_HOST) {
     port: process.env.DB_PORT || 3306,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: sslConfig
   });
 
   // Initialize MySQL tables on boot
