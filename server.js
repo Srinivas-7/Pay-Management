@@ -1,5 +1,5 @@
 const express = require('express');
-const session = require('express-session');
+const session = require('cookie-session');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
@@ -20,14 +20,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Express Session configuration
+// Cookie Session configuration (stateless, works on Serverless Vercel)
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'payroll_secret_key_123',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    maxAge: 1000 * 60 * 60 * 24 // 24 hours
-  }
+  name: 'session',
+  keys: [process.env.SESSION_SECRET || 'payroll_secret_key_123'],
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 
 // Static files middleware (serves frontend)
@@ -87,12 +84,8 @@ app.post('/api/auth/login', async (req, res) => {
 
 // POST logout
 app.post('/api/auth/logout', (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ error: 'Could not log out' });
-    }
-    res.json({ success: true, message: 'Logged out successfully' });
-  });
+  req.session = null;
+  res.json({ success: true, message: 'Logged out successfully' });
 });
 
 // POST change password
