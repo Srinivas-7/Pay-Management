@@ -1,5 +1,7 @@
 # PayMaster - Modern Payroll Management System
 
+[![Deploy to Render](https://render.com/images/deploy-to-render.button.svg)](https://render.com/deploy?repo=https://github.com/Srinivas-7/Pay-Management)
+
 A sleek, premium, and modern Payroll Management System rebuilt entirely in **Node.js, Express, and SQLite3**. This project has been migrated from a legacy PHP/MySQL implementation, removing all dependencies on Apache and XAMPP.
 
 ---

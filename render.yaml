@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: pay-management
+    env: node
+    plan: starter # Note: Persistent disks require a paid plan on Render (Starter or higher, starting at $7/mo + $1/mo for disk)
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: payroll-db-volume
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_PATH
+        value: /data/payroll.db
