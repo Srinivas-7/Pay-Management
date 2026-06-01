@@ -91,6 +91,3 @@ This app has been updated to dynamically configure its database location via env
 1. Connect your GitHub repository to Render as a Web Service.
 2. Add a **Persistent Disk** mounted to `/data`.
 3. Set the environment variable: `DATABASE_PATH` = `/data/payroll.db`.
-
----
-*Created and maintained with ❤️ for Srinivas.*
