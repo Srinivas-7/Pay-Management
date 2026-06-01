@@ -20,19 +20,20 @@ Department of ISE, BMSCE, Bangalore
 ---
 
 ### ABSTRACT
-**PayMaster** is a modern, full-stack payroll management application designed and developed by students from the Department of Information Science at BMS College of Engineering. Engineered to automate payroll processing and employee records management, the platform eliminates the overhead of legacy server setups by providing a completely self-contained, light-weight, and modern deployment. 
+**PayMaster** is an advanced, production-ready, full-stack payroll administration and employee records platform developed by students from the Department of Information Science and Engineering at BMS College of Engineering. The system is engineered to solve the operational bottlenecks, administrative delays, and infrastructure complexities associated with traditional corporate payroll processing. By replacing legacy PHP-based web scripts and local server dependencies (such as Apache, XAMPP, and external MySQL port configurations) with a unified, lightweight Node.js and Express framework, PayMaster introduces an elegant, self-contained architecture suitable for modern organizational deployment.
 
-The application leverages a premium, responsive frontend styled with Vanilla CSS implementing glassmorphic dark-theme aesthetics, solid-colored clear headers, and dynamic icon-only navigation bars. Rich-media integrations include a custom WebRTC webcam capture canvas for employee profile pictures and local gallery uploads. PDF generation is facilitated via `html2pdf.js` with scrollbar-rendering offsets configured to output clean single-page payslips in Indian Rupees (`₹`).
+The client-facing frontend features a premium glassmorphic user interface styled with custom HSL-hued Vanilla CSS. Designed with dark-theme aesthetics to reduce eye strain, the layout incorporates clear, solid headers, micro-animations, and icon-only navigation menus equipped with standard tooltips. Media capabilities include a WebRTC webcam capture console that accesses client-side camera devices via user permission models and merges base64 captures with local file uploads. Payslips are compiled using custom print-coordinate overrides inside `html2pdf.js`, generating single-page documents in Indian Rupees (`₹`) that are clean and free of truncation.
 
-On the backend, a robust Node.js and Express framework serves both API endpoints and static assets. Data management is handled via a **hybrid database model** supporting zero-config local SQLite3 files and remote cloud-based MySQL servers for stateless hosting. Secure session storage is handled via client-side signed cookies (`cookie-session`), solving serverless session resets.
+The backend leverages a modular Node.js/Express server that runs both API controllers and static routers. It implements a **hybrid database model** designed to use a local, zero-config SQLite3 file database for offline development, and automatically switch to secure, TLS/SSL-enabled remote MySQL databases (e.g., Aiven or TiDB Cloud) when environment variables are detected during cloud deployments. Session management is handled statelessly via signed, client-side cookie packets (`cookie-session`), resolving session resets during serverless container recycling on platforms like Vercel. 
 
-Key features include an interactive employee CRUD directory, real-time salary calculations (allowances like DA, HRA, MA, and deductions like PF, PT, overtime, and unpaid leaves), an archived record ledger, and a terminal-based SQLite interactive inspector. This project showcases the ability to modernize legacy architectures into secure, modular, and maintainable web applications.
+Key modules include an interactive employee CRUD directory, a real-time compensation calculator (allowances like DA, HRA, MA, and deductions like PF, PT, overtime wages, and unpaid leaves), a historical records statement archive, and an interactive database command-line utility. Ultimately, the project demonstrates how classic monolithic tools can be modernized into secure, portable, and scalable web solutions.
 
 ---
 
 ### C E R T I F I C A T E
-This is to certify that the FSD Report under Alternate Assessment Tool entitled **“PayMaster”** is a bona-fide work carried out by **Aniket korwar (1BM23IS403)**, **Rohan Navalyal (1BM22IS162)**, and **Sathwik K (1BM22IS253)** in partial fulfilment for the award of degree of Bachelor of Engineering in Information Science and Engineering from Visvesvaraya Technological University, Belgaum during the year 2025-2026. It is certified that all corrections/suggestions indicated for Internal Assessments have been incorporated in the report deposited in the departmental library. The FSD Report has been approved as it satisfies the academic requirements in respect of AAT prescribed for the Bachelor of Engineering Degree.
+This is to certify that the FSD Report under Alternate Assessment Tool entitled **“PayMaster”** is a bona-fide work carried out by **Aniket V Korwar (1BM23IS403)**, **Rohan Raju Navalyal (1BM22IS162)**, and **Sathwik K (1BM22IS253)** in partial fulfilment for the award of degree of Bachelor of Engineering in Information Science and Engineering from Visvesvaraya Technological University, Belgaum during the academic year 2025-2026. It is certified that all corrections/suggestions indicated for Internal Assessments have been incorporated in the report deposited in the departmental library. The FSD Report has been approved as it satisfies the academic requirements in respect of AAT prescribed for the Bachelor of Engineering Degree.
 
+<br>
 <br>
 
 **Dr. B S Mahalakshmi**  
@@ -57,90 +58,109 @@ Principal
 | **2** | Objective of the Project | 2 |
 | **3** | Technology Stack Used | 3 |
 | **4** | Key Features Implemented | 4 |
-| **5.1**| Screenshots | 5 |
+| **5.1**| Screenshots | 6 |
 | **5.2**| Link to Deployed Project | 7 |
 | **6.1**| Challenges Faced | 7 |
 | **6.2**| Learnings | 9 |
-| **7** | Conclusion | 10 |
+| **7** | Conclusion | 11 |
 
 ---
 
 ### 1. Introduction
-In the contemporary corporate landscape, the administration of employee compensation, benefits, tax deductions, and records is a critical operational task. Traditionally, small-to-medium businesses relied on desktop spreadsheets or legacy server architectures requiring elaborate setups (such as XAMPP, Apache servers, and MySQL ports) to host their internal payroll tools. These platforms often suffered from visual clutter, poor device responsiveness, deployment friction, and high infrastructure overhead.
+In the contemporary corporate landscape, the administration of employee compensation, benefits, tax deductions, and records is a critical operational task. Traditionally, small-to-medium enterprises and educational departments relied on manual spreadsheets or outdated server architectures. These legacy systems (often built on PHP and MySQL) required hosting setups like Apache via XAMPP, making them complex to set up, difficult to scale, and prone to display issues on mobile screens.
 
-Recognizing the need for a modern, lightweight, and deployment-friendly administrative tool, **PayMaster** was conceptualized. The motivation behind this project was to take a legacy PHP/MySQL payroll system and migrate it into a modern, containerizable Node.js application that does not require XAMPP or complex MySQL setups for local testing, yet remains completely ready for cloud deployment. 
+Furthermore, managing payroll calculations manually is highly susceptible to human error. A single incorrect allowance percentage or an unchecked tax boundary can result in payment discrepancies, leading to employee dissatisfaction and compliance risks. Additionally, generating physical payslips or manually converting web pages to PDF documents often leads to formatting errors, such as layout truncation, overlapping text, or vertical overflow across multiple pages.
 
-**PayMaster** is a full-stack payroll management console. It simplifies administrative operations by providing a web console that calculates salaries, maintains employee details, generates PDF payslips, and archives past payroll statements. The user interface utilizes glassmorphic elements and dark mode configurations to reduce eye strain for HR administrators who interact with spreadsheets and tables for extended periods.
+Recognizing the need for a modern, lightweight, and deployment-friendly payroll console, **PayMaster** was conceptualized and developed. The project focuses on taking a legacy PHP/MySQL administrative layout and migrating it into a modern, full-stack Node.js application. This setup eliminates the need for XAMPP, Apache servers, and complex local database installations, allowing the platform to run with a single command on any developer's machine while remaining ready for cloud deployment.
 
-By combining a Node.js/Express backend with a dual-mode database engine (supporting SQLite3 locally and MySQL in the cloud), PayMaster balances local development ease with production robustness. The client-side is entirely written in modern HTML5, ES6 JavaScript, and responsive CSS, avoiding build tools or bloated dependencies to optimize load speeds.
+PayMaster combines modern backend runtime design with a clean user experience. The frontend is built with modern HTML5, ES6 JavaScript, and Vanilla CSS, utilizing glassmorphic styles and dark mode options to prevent eye strain for administrators. The backend leverages Express for API endpoints, while a hybrid database engine supports local SQLite3 files and remote cloud-based MySQL databases. Signed cookies (`cookie-session`) are used to ensure stable session handling on serverless platforms.
 
-This report documents the design, architecture, key features, challenges, and implementation workflows of PayMaster, demonstrating the hands-on application of full-stack engineering principles in constructing secure and maintainable software.
+This report provides a comprehensive overview of the design, development, and implementation lifecycle of PayMaster. It reviews the technology stack, core features, challenges faced during development, and the lessons learned. The project reflects the team’s hands-on application of full-stack engineering principles in building a secure, responsive, and maintainable software solution.
 
 ---
 
 ### 2. Objective of the Project
-The primary objective of this project is to develop and implement **PayMaster**, a self-contained payroll management application that replaces legacy PHP-based payroll software. It aims to streamline administrative tasks by offering automated calculation tools and secure record storage in an intuitive visual interface.
+The primary objective of this project is to design, develop, and deploy **PayMaster**, a modern payroll management application that replaces legacy PHP-based platforms. The system aims to simplify administrative workflows by automating compensation calculations and providing secure, reliable data storage through a responsive web interface.
 
-The specific objectives of the project are:
-1. **Remove XAMPP Overhead:** Replace the legacy PHP/Apache dependency with a unified Node.js/Express server that runs locally via a single command.
-2. **Simplify Local Data Storage:** Integrate an embedded SQLite3 file-based database for zero-configuration local runs, eliminating the need to set up MySQL database ports locally.
-3. **Implement Secure Authentication:** Develop an administrator portal secured by signed cookie sessions (`cookie-session`) to allow safe stateless session management on cloud runtimes like Vercel.
-4. **Automate Compensation Calculations:** Build an engine to calculate allowances (DA, HRA, MA) and deductions (PF, PT, overtime payments, and unpaid leave deductions) dynamically in Indian Rupees (`₹`).
-5. **Support Visual Assets:** Integrate WebRTC media APIs to capture live employee photos from webcams and merge them with local uploads, caching them persistently in client-side storage.
-6. **Generate Clean PDF Receipts:** Develop a print engine using `html2pdf.js` that prints receipts cleanly on a single page by locking scroll metrics and hiding browser UI elements.
-7. **Ensure UI Responsiveness:** Apply CSS grid and flexbox to create a glassmorphic user interface optimized for varying monitor sizes and tablets.
+The specific objectives of the project are as follows:
+1. **Eliminate Legacy Server Dependencies:** Replace Apache and XAMPP configurations with a unified, lightweight Node.js/Express server that runs locally via a single command.
+2. **Implement Hybrid Data Storage:** Develop an abstraction layer supporting SQLite3 for offline local runs and remote MySQL database servers with secure SSL transport for cloud deployments.
+3. **Automate Calculations:** Build a calculation engine to compute allowances (DA - 50%, HRA - 10%, MA - 3%) and deductions (Provident Fund - ₹780, Professional Tax - ₹200, unpaid leaves, and overtime hours) in Indian Rupees (`₹`).
+4. **Access WebRTC Devices:** Integrate client-side media devices using the WebRTC API to capture live employee photos from a webcam, alongside support for local image uploads.
+5. **Optimize PDF Outputs:** Configure a PDF engine using `html2pdf.js` with locked scroll positions (`scrollY: 0`) to print payslips cleanly on a single page, avoiding truncation or rendering errors.
+6. **Support Secure stateless Sessions:** Implement signed cookie-based session management (`cookie-session`) to prevent login timeouts and infinite redirect loops on serverless host platforms like Vercel.
+7. **Ensure UI Responsiveness:** Apply CSS grid and flexbox to create a glassmorphic dashboard that scales across different screen sizes, including monitors, laptops, and tablets.
+
+Through these objectives, the project provides hands-on experience in full-stack web development. It demonstrates practical methods for handling state, styling responsive interfaces, managing databases, and integrating browser APIs. The project prepares students for modern software engineering roles by applying academic concepts to build a functional, real-world utility.
 
 ---
 
 ### 3. Technology Stack Used
-The architecture of PayMaster is split into a lightweight presentation layer, a controller API layer, and a hybrid database engine.
+To achieve high performance, scalability, and ease of deployment, PayMaster uses a modern, lightweight full-stack architecture that keeps frontend and backend code modular and maintainable.
 
-#### Frontend
-- **HTML5 & Vanilla ES6 JavaScript:** Renders pages dynamically and handles AJAX fetch requests to backend endpoints.
-- **Custom HSL Vanilla CSS:** Implements glassmorphism dark-theme tokens, interactive hover states, micro-animations, and clean typography.
-- **html2pdf.js:** Client-side PDF generation package that captures HTML blocks and converts them into document layouts.
-- **WebRTC Camera API:** Accesses device cameras (`navigator.mediaDevices.getUserMedia`) to capture base64-encoded profile photos.
+#### Frontend Layer
+* **HTML5 & Vanilla ES6 JavaScript:** Used to render pages dynamically and handle client-side logic. The frontend uses AJAX fetch requests to communicate with backend endpoints, avoiding page refreshes.
+* **Vanilla CSS (HSL Color Space):** Implements a premium glassmorphic dark-theme UI. It uses custom CSS variables, flexbox, and grid layouts to ensure responsiveness and smooth transition effects.
+* **html2pdf.js (incorporating html2canvas and jsPDF):** Handles client-side PDF generation by converting specific HTML elements into document layouts.
+* **WebRTC Media Devices API:** Accesses device cameras (`navigator.mediaDevices.getUserMedia`) to capture base64-encoded profile photos.
 
-#### Backend
-- **Node.js & Express:** Serves backend APIs and handles static file routing (`express.static`) for the frontend.
-- **cookie-session:** Lightweight signed-cookie session middleware designed to maintain login status on stateless serverless runtimes.
-- **Morgan & CORS:** Middleware for HTTP request logging and Cross-Origin Resource Sharing handling.
+#### Backend Layer
+* **Node.js (v16+):** The runtime environment for the application.
+* **Express Framework:** Manages routing, body parsing, static assets (`express.static`), and API endpoints.
+* **cookie-session:** Signed cookie middleware used to store encrypted session states in the browser, keeping the serverless backend stateless.
+* **Morgan & CORS:** Middleware for HTTP request logging and managing Cross-Origin Resource Sharing.
 
-#### Database
-- **SQLite3 (`sqlite3`):** Default database for local runs, creating the table schemas and admin seeds automatically.
-- **MySQL (`mysql2`):** Cloud-compatible database driver enabled dynamically when env variables are detected.
+#### Database Layer
+* **SQLite3 (`sqlite3`):** Default database for local runs, creating the table schemas and admin seeds automatically.
+* **MySQL (`mysql2`):** Cloud-compatible database driver enabled dynamically when env variables are detected.
+* **Local SQLite Connection:** Resolves to a local `payroll.db` file in the project folder for fast, offline testing.
+* **Cloud MySQL Connection:** Connects securely using TLS/SSL (`rejectUnauthorized: false`) for cloud databases like Aiven.io or TiDB Cloud.
 
-#### Deployment
-- **GitHub:** Code version control and collaboration repository.
-- **Vercel:** Cloud platform hosting the serverless Express APIs and public directory.
+#### Development & Deployment Tools
+* **Git & GitHub:** Version control, collaboration, and repository storage.
+* **Vercel:** Cloud platform hosting the serverless Express APIs and public directory.
 
 ---
 
 ### 4. Key Features Implemented
 
-1. **Secure Admin Authentication:**
-   A login portal restricts access to authorized administrators. Admin passwords can be updated securely via the settings panel.
-2. **Employee Directory (CRUD):**
-   Full CREATE, READ, UPDATE, and DELETE operations to register new employees with their contact info, joining date, and basic pay.
-3. **Allowance & Deduction Processor:**
-   Automatically computes Dearness Allowance (DA - 50%), House Rent Allowance (HRA - 10%), Medical Allowance (MA - 3%), Provident Fund (PF - ₹780), Professional Tax (PT - ₹200), leave deductions, and overtime wages.
-4. **Webcam Capture Profile Picture:**
-   A live camera viewer is embedded into the profile panel, allowing administrators to snap photos of employees or upload existing image files, which are saved as base64 strings in LocalStorage.
-5. **Interactive PDF Payslip Generator:**
-   Renders payslips on a white-paper layout containing calculations, company stamps, and signature blocks, downloadable as a PDF.
-6. **Stateless Session Persistence:**
-   Uses signed cookies to prevent session loss, preventing redirect loops during serverless container recycling on Vercel.
-7. **Past Records Archival Ledger:**
-   Every calculated payslip can be archived. The system saves the inputs (leaves, overtime, conveyances) and presents them in a historical list where they can be re-printed or deleted.
-8. **Interactive Terminal DB Viewer:**
-   A custom script (`node view_db.js`) prints database tables in ASCII format to view SQLite records without installing GUI databases.
+#### 1. Secure Admin Authentication
+A secure login interface prevents unauthorized access to employee records. It uses a hashed credentials schema, session controls, and a dedicated settings panel that allows administrators to change passwords securely.
+
+#### 2. Employee Directory (CRUD)
+A management panel allows administrators to add, view, inspect, and delete employee records. Each record stores name, date of birth, shift, joining date, basic pay, and contact information.
+
+#### 3. Real-Time Compensation Calculator
+An automated engine computes allowances and deductions dynamically. The calculations are based on basic pay inputs, leaves taken, overtime hours, and conveyance adjustments:
+- **Dearness Allowance (DA):** 50% of Basic Pay.
+- **House Rent Allowance (HRA):** 10% of Basic Pay.
+- **Medical Allowance (MA):** 3% of Basic Pay.
+- **Provident Fund (PF):** Flat ₹780 deduction.
+- **Professional Tax (PT):** Flat ₹200 deduction.
+- **Leave Deduction:** Calculated as `(Basic / 30) * leaves`.
+- **Overtime Pay:** Calculated as `((Basic / 30) / 24) * overtime_hours`.
+
+#### 4. Webcam Capture and Image Upload
+A media utility is embedded in the profile section. It streams a live camera feed into an HTML5 Canvas, allowing administrators to snap employee photos or upload files. These images are saved as base64 strings in LocalStorage.
+
+#### 5. Interactive PDF Payslip Generator
+Generates a printable payslip displaying calculations, deductions, net salary, and signature lines in Indian Rupees (`₹`), with one-click PDF downloading.
+
+#### 6. Stateless Session Persistence
+By using signed cookies, the system prevents session loss on serverless platforms, ensuring users remain logged in across different backend container invocations.
+
+#### 7. Past Statement Archive Ledger
+Calculated payslips can be saved to the database archive, displaying leaves, overtime, conveyances, and net pay in a historical ledger for reference or deletion.
+
+#### 8. Interactive Terminal DB Viewer
+A custom utility script (`node view_db.js`) queries and prints database tables in ASCII format directly to the command line, simplifying debugging without requiring extra GUI database clients.
 
 ---
 
 ### 5.1 Screenshots
 
-#### Login Page
-*Secure administrator portal implementing styled input fields and glassmorphism styling.*
+#### Admin Login Page
+*A secure gateway using glassmorphic styling, input validation, and alert components for session entry.*
 
 #### Home Page (Dashboard)
 *A consolidated console containing the employee selector, input parameters (leaves, overtime hours, conveyances), and real-time calculations.*
@@ -190,18 +210,23 @@ The architecture of PayMaster is split into a lightweight presentation layer, a 
 
 ### 6.2 Learnings
 
-1. **Legacy Architecture Modernization:**
-   Acquired experience in translating PHP controllers and Apache dependencies into modular Node.js Express APIs, streamlining application code.
-2. **Stateless Web Architectures:**
-   Understood how serverless environments interact with authentication, moving from RAM-dependent stateful sessions to client-encrypted cookies.
-3. **Hybrid Database Configurations:**
-   Understood how to construct runtime switches supporting multiple SQL dialects (SQLite for fast local testing and MySQL with SSL for cloud deployments) using a single query interface.
-4. **WebRTC Integration:**
-   Gained knowledge of streaming camera feeds into Canvas objects, taking snapshots, and converting them into base64 URLs for persistent browser storage.
-5. **Print Layout Engineering:**
-   Learned to handle canvas rendering bugs by overriding coordinate offsets inside client-side page rendering engines.
-6. **Teamwork & Deployment Pipelines:**
-   Strengthened coordination skills using Git, configuring environmental variables for cloud deployments, and automating builds via GitHub-Vercel hooks.
+#### 1. Legacy Architecture Modernization
+Gained practical experience in converting legacy PHP structures, Apache dependencies, and stateful setups into lightweight, modular Node.js Express APIs. This process highlighted the benefits of unified runtimes for code reduction and maintainability.
+
+#### 2. Stateless Web Security
+Learned how serverless platforms interact with authentication models. Investigated the transition from stateful RAM sessions to client-encrypted, signed cookies. This approach ensures session persistence across stateless, containerized environments.
+
+#### 3. Abstraction of Multi-Dialect Databases
+Developed a database module capable of switching between two distinct database dialects: SQLite3 for quick, zero-install local testing, and MySQL with secure TLS/SSL configurations for cloud deployments.
+
+#### 4. WebRTC Canvas Integration
+Acquired practical knowledge of browser media capture APIs. Integrated video streaming from webcam devices, drew frames to HTML5 canvas nodes, and stored compressed base64 strings in LocalStorage for cross-session caching.
+
+#### 5. Layout and Print Coordinate Mapping
+Understood browser rendering behaviors during print operations. Resolved canvas offsets in `html2pdf.js` by overriding scroll coordinates, ensuring pages generate correctly regardless of browser scroll states.
+
+#### 6. Deployment Pipelines and Collaborative Workflows
+Gained experience in managing repository staging, rebasing remote history, and automating build triggers on cloud platforms via GitHub integration.
 
 ---
 
